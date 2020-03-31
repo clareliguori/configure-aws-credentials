@@ -120,17 +120,15 @@ function exportRegion(region) {
 async function exportAccountId(maskAccountId, region) {
   // Get the AWS account ID
   const sts = getStsClient(region);
-  const identity = await sts.getCallerIdentity((err) => {
-    if (err) {
-      core.error("Got error:", err.message);
+  const identity = await sts.getCallerIdentity()
+    .on('error', function(err, response) {
       console.log("Got error:", err.message);
       console.log("Request:");
-      console.log(this.request.httpRequest);
+      console.log(response.request.httpRequest);
       console.log("Response:");
-      console.log(this.httpResponse);
-      throw err;
-    }
-  }).promise();
+      console.log(response.httpResponse);
+    })
+    .promise();
   const accountId = identity.Account;
   core.setOutput('aws-account-id', accountId);
   if (!maskAccountId || maskAccountId.toLowerCase() == 'true') {
