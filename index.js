@@ -121,15 +121,21 @@ async function exportAccountId(maskAccountId, region) {
   // Get the AWS account ID
   const sts = getStsClient(region);
   const identity = await sts.getCallerIdentity()
-    .on('error', function(err, response) {
+    .on('error', function(err, _) {
       console.log("Got error:", err.message);
-      console.log("Request:");
+
+      var creds = new aws.EnvironmentCredentials('AWS');
+      console.log("Does request access key ID match input? " + (creds.accessKeyId == core.getInput('aws-access-key-id')));
+      console.log("Does request secret access key match input? " + (creds.secretAccessKey == core.getInput('aws-secret-access-key')));
+      console.log("Does request region match input? " + (region == core.getInput('aws-region')));
+
+      console.log("Error:");
+      console.log(err);
+      /*console.log("Request:");
       console.log(response.request.httpRequest);
       console.log("Response:");
       console.log(response.httpResponse);
-
-      var creds = new aws.EnvironmentCredentials('AWS');
-      console.log("secret access key: " + creds.secretAccessKey);
+      */
     })
     .promise();
   const accountId = identity.Account;
