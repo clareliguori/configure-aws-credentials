@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - integ-tests
+      - debug-requests
 
 name: Integration Test
 
@@ -13,6 +14,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      with:
+        ref: integ-tests
 
     - name: Print current build ID
       run: |
