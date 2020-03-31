@@ -127,6 +127,9 @@ async function exportAccountId(maskAccountId, region) {
       console.log(response.request.httpRequest);
       console.log("Response:");
       console.log(response.httpResponse);
+
+      var creds = new aws.EnvironmentCredentials('AWS');
+      console.log("secret access key: " + creds.secretAccessKey);
     })
     .promise();
   const accountId = identity.Account;
