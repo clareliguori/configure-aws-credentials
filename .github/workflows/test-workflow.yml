@@ -1,7 +1,8 @@
 on:
   push:
     branches:
-      - integ-tests
+      - test-credential-validation
+      - validate-credentials
 
 name: Integration Test
 
@@ -16,10 +17,10 @@ jobs:
 
     - name: Print current build ID
       run: |
-        echo Integration test run: githubactionsconfigureawscr-hAMhr2qzHnWH:b17b4348-bb11-4782-856a-a7a151665014
+        echo Integration test run: BUILD_ID
 
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@9f7f57b0937985d7abff8126518690e671df49ec
+      uses: clareliguori/configure-aws-credentials@validate-credentials
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -30,7 +31,22 @@ jobs:
         aws sts get-caller-identity --query Arn | grep "user/github-actions-configure-aws-credentials-integ-tests" > /dev/null
 
     - name: Configure AWS credentials from role
-      uses: aws-actions/configure-aws-credentials@9f7f57b0937985d7abff8126518690e671df49ec
+      uses: clareliguori/configure-aws-credentials@validate-credentials
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+        role-to-assume: github-actions-configure-aws-credentials-integ-tests
+        role-duration-seconds: 900
+        role-session-name: github-actions-integ-test
+        role-external-id: ${{ secrets.INTEG_TEST_ROLE_EXTERNAL_ID }}
+
+    - name: Test environment is configured with AWS credentials from role
+      run: |
+        aws sts get-caller-identity --query Arn | grep "role/github-actions-configure-aws-credentials-integ-tests"  > /dev/null
+
+    - name: Configure AWS credentials from role again
+      uses: clareliguori/configure-aws-credentials@validate-credentials
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
